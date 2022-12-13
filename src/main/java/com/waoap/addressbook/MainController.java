@@ -1,6 +1,7 @@
 package com.waoap.addressbook;
 
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -10,16 +11,19 @@ import java.util.*;
 
 public class MainController {
     @FXML
-    public TextField keywordField;
+    public TextField keywordFieldName;
+    @FXML
+    public TextField keywordFieldTelephone;
+    @FXML
+    public TextField keywordFieldEmail;
 
     @FXML
     public Button searchButton;
+    @FXML
+    public Button addButton;
 
     @FXML
     public ListView<String> contactsList;
-
-    @FXML
-    public Button addButton;
 
     @FXML
     public Text logField;
@@ -83,6 +87,9 @@ public class MainController {
 
             Dialog<Person> dialog = new Dialog<>();
             dialog.setTitle("新增联系人");
+            dialog.resizableProperty().set(true);
+
+            GridPane dialogRoot = new GridPane();
 
             Label nameLabel = new Label("姓名：");
             TextField nameField = new TextField();
@@ -94,9 +101,11 @@ public class MainController {
                 }
             }));
 
-            Label telephoneLabel = new Label("电话：");
-            TextField telephoneField = new TextField();
-            telephoneField.setTextFormatter(new TextFormatter<>(change -> {
+            ArrayList<Label> telephoneLabels = new ArrayList<>();
+            ArrayList<TextField> telephoneFields = new ArrayList<>();
+            telephoneLabels.add(new Label("电话："));
+            telephoneFields.add(new TextField());
+            telephoneFields.get(0).setTextFormatter(new TextFormatter<>(change -> {
                 if (change.getControlNewText().matches("\\d*") && change.getControlNewText().length() <= 11) {
                     return change;
                 } else {
@@ -104,6 +113,26 @@ public class MainController {
                 }
             }));
             Button moreTelephoneButton = new Button("+");
+            moreTelephoneButton.setOnAction(event1 -> {
+                Label newLabel = new Label("电话：");
+                TextField newField = new TextField();
+                newField.setTextFormatter(new TextFormatter<>(change -> {
+                    if (change.getControlNewText().matches("\\d*") && change.getControlNewText().length() <= 11) {
+                        return change;
+                    } else {
+                        return null;
+                    }
+                }));
+                dialogRoot.add(newLabel, 1, 2 + telephoneLabels.size());
+                dialogRoot.add(newField, 2, 2 + telephoneLabels.size());
+                for (int i = 4; i < dialogRoot.getChildren().size() - 2 * telephoneLabels.size(); i++) {
+                    Node node = dialogRoot.getChildren().get(i);
+                    GridPane.setRowIndex(node, GridPane.getRowIndex(node) + 1);
+                }
+                telephoneLabels.add(newLabel);
+                telephoneFields.add(newField);
+                dialog.setHeight(dialogRoot.getHeight() + 130);
+            });
 
             Label emailLabel = new Label("邮箱：");
             TextField emailField = new TextField();
@@ -135,13 +164,12 @@ public class MainController {
                 }
             }));
 
-            GridPane dialogRoot = new GridPane();
             dialogRoot.setVgap(10);
             dialogRoot.setHgap(20);
             dialogRoot.add(nameLabel, 1, 1);
             dialogRoot.add(nameField, 2, 1);
-            dialogRoot.add(telephoneLabel, 1, 2);
-            dialogRoot.add(telephoneField, 2, 2);
+            dialogRoot.add(telephoneLabels.get(0), 1, 2);
+            dialogRoot.add(telephoneFields.get(0), 2, 2);
             dialogRoot.add(moreTelephoneButton, 3, 2);
             dialogRoot.add(emailLabel, 1, 3);
             dialogRoot.add(emailField, 2, 3);
@@ -161,10 +189,17 @@ public class MainController {
                     String address;
                     String note;
                     name = nameField.getText();
-                    telephones.add(telephoneField.getText());
+                    for (TextField telephoneField : telephoneFields) {
+                        telephones.add(telephoneField.getText());
+                    }
                     email = emailField.getText();
                     address = addressField.getText();
                     note = noteField.getText();
+
+                    if (name.length() < 2) {
+                        new Alert(Alert.AlertType.WARNING, "姓名长度至少为两位！").showAndWait();
+                        return null;
+                    }
 
                     for (String telephone : telephones) {
                         if (telephone.length() != 11) {
@@ -191,6 +226,11 @@ public class MainController {
                 refreshContacts();
                 log(LogLevel.INFO, "联系人添加成功！");
             }
+        });
+
+        // 查找联系人
+        searchButton.setOnAction(event -> {
+
         });
 
         log(LogLevel.INFO, "欢迎使用！");
