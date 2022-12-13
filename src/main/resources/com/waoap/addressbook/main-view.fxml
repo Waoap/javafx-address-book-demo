@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+<AnchorPane prefHeight="645.0" prefWidth="450.0"
+            xmlns="http://javafx.com/javafx/17.0.2-ea"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.waoap.addressbook.MainController">
+    <TextField fx:id="keywordField" layoutX="15.0" layoutY="15.0"
+               prefWidth="275.0" promptText="关键词：姓名/电话号码/邮箱"/>
+    <Button fx:id="searchButton" layoutX="300.0" layoutY="15.0"
+            mnemonicParsing="false" text="搜索"/>
+    <ListView fx:id="contactsList" layoutX="15.0" layoutY="60.0"
+              prefHeight="540.0" prefWidth="400.0"/>
+    <Button fx:id="addButton" layoutX="360.0" layoutY="15.0"
+            mnemonicParsing="false" text="新增"/>
+    <Text layoutX="15.0" layoutY="626.0" strokeType="OUTSIDE" strokeWidth="0.0"
+          text="操作日志："/>
+    <Text fx:id="logField" layoutX="135.0" layoutY="626.0" strokeType="OUTSIDE"
+          strokeWidth="0.0" textAlignment="RIGHT" wrappingWidth="280.0"/>
+    <VBox fx:id="navigationList" layoutX="428.0" layoutY="60.0"
+          prefHeight="495.0" prefWidth="8.0">
+        <Label text="#"/>
+        <Label text="A"/>
+        <Label text="B"/>
+        <Label text="C"/>
+        <Label text="D"/>
+        <Label text="E"/>
+        <Label text="F"/>
+        <Label text="G"/>
+        <Label text="H"/>
+        <Label text="I"/>
+        <Label text="J"/>
+        <Label text="K"/>
+        <Label text="L"/>
+        <Label text="M"/>
+        <Label text="N"/>
+        <Label text="O"/>
+        <Label text="P"/>
+        <Label text="Q"/>
+        <Label text="R"/>
+        <Label text="S"/>
+        <Label text="T"/>
+        <Label text="U"/>
+        <Label text="V"/>
+        <Label text="W"/>
+        <Label text="X"/>
+        <Label text="Y"/>
+        <Label text="Z"/>
+    </VBox>
+</AnchorPane>
