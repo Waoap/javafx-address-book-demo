@@ -5,4 +5,5 @@ module com.waoap.addressbook {
 
     opens com.waoap.addressbook to javafx.fxml;
     exports com.waoap.addressbook;
+    exports com.waoap.addressbook.utils;
 }
