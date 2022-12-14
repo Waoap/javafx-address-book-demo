@@ -17,13 +17,25 @@ public class PinYinComparator implements Comparator<String> {
      */
     private static final Collator collator = Collator.getInstance(Locale.CHINA);
 
+    /**
+     * 判断词语是否以中文（严格意义上说是非 ASCII 字符）开头
+     *
+     * @param word 词语
+     * @return 是否以中文（严格意义上说是非 ASCII 字符）开头
+     */
     public static boolean isBeginWithChinese(String word) {
         return word.length() != 0 && word.charAt(0) >= 128;
     }
 
-    public static String getFullSpell(String chinese) {
+    /**
+     * 获取词语的全拼，英文转为大写，中文转为拼音，格式为无声调大写字母
+     *
+     * @param word 词语
+     * @return 词语的全拼
+     */
+    public static String getFullSpell(String word) {
         StringBuilder builder = new StringBuilder();
-        char[] chars = chinese.toCharArray();
+        char[] chars = word.toCharArray();
         HanyuPinyinOutputFormat defaultFormat = new HanyuPinyinOutputFormat();
         defaultFormat.setCaseType(HanyuPinyinCaseType.UPPERCASE);
         defaultFormat.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
@@ -50,19 +62,19 @@ public class PinYinComparator implements Comparator<String> {
      */
     @Override
     public int compare(String o1, String o2) {
-        if (o1.matches("[A-Z]")) {
+        // 比较导航条目与联系人信息时，默认将联系人放在后面
+        if (o1.matches("[#A-Z]")) {
             if (o1.equals(o2.substring(0, 1)) && o2.length() > 1) return -1;
         }
-
-        if (o2.matches("[A-Z]")) {
+        if (o2.matches("[#A-Z]")) {
             if (o2.equals(o1.substring(0, 1)) && o1.length() > 1) return 1;
         }
 
-        if (o1.matches("[a-zA-Z].+") && isBeginWithChinese(o2)) {
+        // 比较英文和中文开头的联系人时，默认将中文放在后面
+        if (o1.matches("[#a-zA-Z].+") && isBeginWithChinese(o2)) {
             return -1;
         }
-
-        if (o2.matches("[a-zA-Z].+") && isBeginWithChinese(o1)) {
+        if (o2.matches("[#a-zA-Z].+") && isBeginWithChinese(o1)) {
             return 1;
         }
 
