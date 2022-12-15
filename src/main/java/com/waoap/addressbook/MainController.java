@@ -1,6 +1,7 @@
 package com.waoap.addressbook;
 
 import com.waoap.addressbook.utils.Dialog;
+import com.waoap.addressbook.utils.MTextFormatter;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -47,6 +48,25 @@ public class MainController {
     public VBox navigationList;
 
     /**
+     * 刷新联系人姓名列表，也即刷新显示
+     */
+    private void refreshContacts() {
+        // 高频调用方法，如刷新 UI，须使用 Platform.runLater
+        // 否则后续会产生难以定位的问题
+        Platform.runLater(() -> {
+            contactsList.getItems().clear();
+            Queue<String> tmp = new LinkedList<>();
+            while (!addressBook.getNames().isEmpty()) {
+                contactsList.getItems().add(addressBook.getNames().peek());
+                tmp.offer(addressBook.getNames().poll());
+            }
+            while (!tmp.isEmpty()) {
+                addressBook.getNames().offer(tmp.poll());
+            }
+        });
+    }
+
+    /**
      * 打印用户操作日志
      *
      * @param logLevel 日志级别
@@ -62,37 +82,31 @@ public class MainController {
     }
 
     /**
-     * 刷新联系人姓名列表，也即刷新显示
+     * 指定联系人列表，刷新联系人姓名列表，也即刷新显示
+     *
+     * @param contacts 指定的联系人列表
      */
-    private void refreshContacts() {
+    private void refreshContacts(ArrayList<String> contacts) {
         // 高频调用方法，如刷新 UI，须使用 Platform.runLater
         // 否则后续会产生难以定位的问题
         Platform.runLater(() -> {
             contactsList.getItems().clear();
-            Queue<String> tmp = new LinkedList<>();
-            while (!addressBook.getNames().isEmpty()) {
-                String s = addressBook.getNames().poll();
-                tmp.offer(s);
-                contactsList.getItems().add(s);
-            }
-            while (!tmp.isEmpty()) {
-                addressBook.getNames().offer(tmp.poll());
-            }
+            contactsList.getItems().addAll(contacts);
         });
     }
 
-    /**
-     * 电话簿实例
-     */
-    private final AddressBook addressBook = new AddressBook();
-
     public void initialize() {
         // 初始化电话簿
-        addressBook.add(new Person("#"));
+        addressBook.add(new Person("#", Person.Status.NAVIGATION_TYPE));
         for (int i = 0; i < 26; i++) {
-            addressBook.add(new Person(String.valueOf((char) ('A' + i))));
+            addressBook.add(new Person(String.valueOf((char) ('A' + i)), Person.Status.NAVIGATION_TYPE));
         }
         refreshContacts();
+
+        // 限制关键词输入框的文本格式
+        keywordFieldName.setTextFormatter(MTextFormatter.getNameFormatter());
+        keywordFieldTelephone.setTextFormatter(MTextFormatter.getTelephoneFormatter());
+        keywordFieldEmail.setTextFormatter(MTextFormatter.getEmailFormatter());
 
         // 新增联系人按钮事件
         addButton.setOnAction(event -> {
@@ -106,6 +120,11 @@ public class MainController {
                 if (result.get().getStatus() != Person.Status.ERROR) {
                     addressBook.add(result.get());
                     refreshContacts();
+                    // 如果正在查找，则重置查找状态
+                    if (searchButton.getText().equals("返回")) {
+                        refreshContacts();
+                        searchButton.setText("查找");
+                    }
                     log(LogLevel.INFO, "联系人添加成功！");
                 } else {
                     log(LogLevel.WARN, "联系人添加失败！");
@@ -117,14 +136,44 @@ public class MainController {
 
         // 查找联系人按钮事件
         searchButton.setOnAction(event -> {
-            // TODO:
+            if (searchButton.getText().equals("查找")) {
+                ArrayList<String> matchContacts = new ArrayList<>();
+                matchContacts.add("Sort By Name");
+                if (!keywordFieldName.getText().isBlank()) {
+                    matchContacts.addAll(addressBook.findByName(keywordFieldName.getText()));
+                }
+                matchContacts.add("Sort By Telephone");
+                if (!keywordFieldTelephone.getText().isBlank()) {
+                    matchContacts.addAll(addressBook.findByTelephone(keywordFieldTelephone.getText()));
+                }
+                matchContacts.add("Sort By Email");
+                if (!keywordFieldEmail.getText().isBlank()) {
+                    matchContacts.addAll(addressBook.findByEmail(keywordFieldEmail.getText()));
+                }
+                refreshContacts(matchContacts);
+                searchButton.setText("返回");
+            } else if (searchButton.getText().equals("返回")) {
+                refreshContacts();
+                searchButton.setText("查找");
+            }
         });
 
         // 联系人点击事件
         contactsList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             // null 安全判断，以及要求点击的不是 #A-Z 这几个导航条目
-            if (newValue != null && !newValue.matches("[#A-Z]")) {
+            if (newValue != null && !newValue.matches("[#A-Z]|(Sort By .+)")) {
                 log(LogLevel.INFO, "正在查看联系人……");
+
+                // 有重名情况时，确认用户点击的是重名中的第几个
+                int index = contactsList.getSelectionModel().getSelectedIndex();
+                int count = 1;
+                for (int i = 0; i < index; i++) {
+                    if (contactsList.getItems().get(i).matches("Sort By .+"))
+                        break;
+                    if (contactsList.getItems().get(i).equals(newValue)) {
+                        count++;
+                    }
+                }
 
                 // 不及时清除选中状态会导致连续两次选中同一个联系人条目，
                 // 第二次选中时，选中监听失效
@@ -133,7 +182,7 @@ public class MainController {
 
                 Dialog dialog = Dialog.getInstance();
                 dialog.setTitle("联系人信息");
-                Person contact = addressBook.getNames2contacts().get(newValue);
+                Person contact = addressBook.getNames2contacts().get(newValue).get(count - 1);
                 dialog.preloadFrom(contact);
                 dialog.setDisableAll(true);
 
@@ -162,6 +211,11 @@ public class MainController {
                     if (oldContact.getStatus() == Person.Status.IN_DELETE) {
                         addressBook.delete(oldContact);
                         refreshContacts();
+                        // 如果正在查找，则重置查找状态
+                        if (searchButton.getText().equals("返回")) {
+                            refreshContacts();
+                            searchButton.setText("查找");
+                        }
                         log(LogLevel.INFO, "联系人删除成功！");
                     }
                     // 用户选择编辑联系人
@@ -180,16 +234,15 @@ public class MainController {
                                 if (oldContact.equalTo(newContact)) {
                                     log(LogLevel.INFO, "取消修改联系人。");
                                 }
-                                // 用户试图把联系人 B 的名字修改成已存在的联系人 A 的名字
-                                else if (addressBook.getNames2contacts().containsKey(newContact.getName())
-                                        && !oldContact.getName().equals(newContact.getName())) {
-                                    new Alert(Alert.AlertType.WARNING, "已存在联系人！").showAndWait();
-                                    log(LogLevel.WARN, "重复添加联系人！");
-                                }
                                 // 成功修改
                                 else {
                                     addressBook.modify(oldContact, newContact);
                                     refreshContacts();
+                                    // 如果正在查找，则重置查找状态
+                                    if (searchButton.getText().equals("返回")) {
+                                        refreshContacts();
+                                        searchButton.setText("查找");
+                                    }
                                     log(LogLevel.INFO, "联系人修改成功！");
                                 }
                             }
@@ -215,6 +268,11 @@ public class MainController {
 
         log(LogLevel.INFO, "欢迎使用！");
     }
+
+    /**
+     * 电话簿实例
+     */
+    private final AddressBook addressBook = new AddressBook();
 
     /**
      * 为对话框添加确认、取消按钮，并调用 {@code showAndWait()} 方法，将其结果作为返回值
@@ -246,25 +304,19 @@ public class MainController {
 
                 if (name.length() < 2) {
                     new Alert(Alert.AlertType.WARNING, "姓名长度至少为两位！").showAndWait();
-                    Person error = new Person("error");
-                    error.setStatus(Person.Status.ERROR);
-                    return error;
+                    return new Person("error", Person.Status.ERROR);
                 }
 
                 for (String telephone : telephones) {
                     if (telephone.length() != 11) {
                         new Alert(Alert.AlertType.WARNING, "电话长度必须为11位！").showAndWait();
-                        Person error = new Person("error");
-                        error.setStatus(Person.Status.ERROR);
-                        return error;
+                        return new Person("error", Person.Status.ERROR);
                     }
                 }
 
                 if (!email.matches("^\\w+(\\w|[.]\\w+)+@\\w+([.]\\w+){1,3}")) {
                     new Alert(Alert.AlertType.WARNING, "邮箱不合规！").showAndWait();
-                    Person error = new Person("error");
-                    error.setStatus(Person.Status.ERROR);
-                    return error;
+                    return new Person("error", Person.Status.ERROR);
                 }
 
                 return new Person(name, telephones, email, address, note);

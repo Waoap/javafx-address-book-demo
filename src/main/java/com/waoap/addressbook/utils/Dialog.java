@@ -6,7 +6,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
@@ -51,56 +50,26 @@ public class Dialog extends javafx.scene.control.Dialog<Person> {
         // 创建用于接受/显示联系人基本信息的输入框，以及对应的标签
         Label nameLabel = new Label("姓名：");
         TextField nameField = new TextField();
-        nameField.setTextFormatter(new TextFormatter<>(change -> {
-            if (change.getControlNewText().length() < 20) {
-                return change;
-            } else {
-                return null;
-            }
-        }));
+        nameField.setTextFormatter(MTextFormatter.getNameFormatter());
 
         Label telephoneLabel = new Label("电话：");
         ArrayList<TextField> telephoneFields = new ArrayList<>();
         telephoneFields.add(new TextField());
-        telephoneFields.get(0).setTextFormatter(new TextFormatter<>(change -> {
-            if (change.getControlNewText().matches("\\d*") && change.getControlNewText().length() <= 11) {
-                return change;
-            } else {
-                return null;
-            }
-        }));
+        telephoneFields.get(0).setTextFormatter(MTextFormatter.getTelephoneFormatter());
         // 实现添加更多电话号码的按钮
         Button moreTelephoneButton = new Button("+");
 
         Label emailLabel = new Label("邮箱：");
         TextField emailField = new TextField();
-        emailField.setTextFormatter(new TextFormatter<>(change -> {
-            if (change.getControlNewText().length() < 40) {
-                return change;
-            } else {
-                return null;
-            }
-        }));
+        emailField.setTextFormatter(MTextFormatter.getEmailFormatter());
 
         Label addressLabel = new Label("住址：");
         TextField addressField = new TextField();
-        addressField.setTextFormatter(new TextFormatter<>(change -> {
-            if (change.getControlNewText().length() < 40) {
-                return change;
-            } else {
-                return null;
-            }
-        }));
+        addressField.setTextFormatter(MTextFormatter.getCommonFormatter());
 
         Label noteLabel = new Label("备注：");
         TextField noteField = new TextField();
-        noteField.setTextFormatter(new TextFormatter<>(change -> {
-            if (change.getControlNewText().length() < 40) {
-                return change;
-            } else {
-                return null;
-            }
-        }));
+        noteField.setTextFormatter(MTextFormatter.getCommonFormatter());
 
         // 把上述组件添加入网格布局
         GridPane dialogRoot = new GridPane();
@@ -131,13 +100,7 @@ public class Dialog extends javafx.scene.control.Dialog<Person> {
         moreTelephoneButton.setOnAction(event1 -> {
             Label newLabel = new Label("电话：");
             TextField newField = new TextField();
-            newField.setTextFormatter(new TextFormatter<>(change -> {
-                if (change.getControlNewText().matches("\\d*") && change.getControlNewText().length() <= 11) {
-                    return change;
-                } else {
-                    return null;
-                }
-            }));
+            newField.setTextFormatter(MTextFormatter.getTelephoneFormatter());
 
             dialogRoot.add(newLabel, 1, 2 + telephoneFields.size());
             dialogRoot.add(newField, 2, 2 + telephoneFields.size());
