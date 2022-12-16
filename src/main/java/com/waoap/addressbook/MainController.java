@@ -146,15 +146,15 @@ public class MainController {
             if (searchButton.getText().equals("查找")) {
                 log(LogLevel.INFO, "正在查找联系人……");
                 ArrayList<String> matchContacts = new ArrayList<>();
-                matchContacts.add("Sort By Name");
+                matchContacts.add("Result of Name");
                 if (!keywordFieldName.getText().isBlank()) {
                     matchContacts.addAll(addressBook.findByName(keywordFieldName.getText()));
                 }
-                matchContacts.add("Sort By Telephone");
+                matchContacts.add("Result of Telephone");
                 if (!keywordFieldTelephone.getText().isBlank()) {
                     matchContacts.addAll(addressBook.findByTelephone(keywordFieldTelephone.getText()));
                 }
-                matchContacts.add("Sort By Email");
+                matchContacts.add("Result of Email");
                 if (!keywordFieldEmail.getText().isBlank()) {
                     matchContacts.addAll(addressBook.findByEmail(keywordFieldEmail.getText()));
                 }
@@ -170,7 +170,7 @@ public class MainController {
         // 联系人点击事件
         contactsList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             // null 安全判断，以及要求点击的不是 #A-Z 这几个导航条目
-            if (newValue != null && !newValue.matches("[#A-Z]|(Sort By .+)")) {
+            if (newValue != null && !newValue.matches("[#A-Z]|(Result of .+)")) {
                 log(LogLevel.INFO, "正在查看联系人……");
 
                 // 有重名情况时，确认用户点击的是重名中的第几个
@@ -288,12 +288,12 @@ public class MainController {
                 }
                 alert.setTitle("关于");
                 alert.setHeaderText("「长歌吟松风，曲尽河星稀」");
-                alert.setContentText("版本：\t 1.0.2 -- TEST\n作者：\t Waoap\nGitHub： https://github.com/Waoap");
+                alert.setContentText("版本：\t 1.0.3 -- TEST\n作者：\t Waoap\nGitHub： https://github.com/Waoap");
                 alert.showAndWait();
             }
         });
 
-        log(LogLevel.INFO, "欢迎！双击此处打开关于界面。");
+        log(LogLevel.INFO, "欢迎！(●'◡'●) 双击此打开关于界面。");
     }
 
     /**
