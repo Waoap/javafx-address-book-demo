@@ -1,4 +1,4 @@
-package com.waoap.addressbook;
+package com.waoap.addressbook.model;
 
 import java.util.ArrayList;
 import java.util.List;

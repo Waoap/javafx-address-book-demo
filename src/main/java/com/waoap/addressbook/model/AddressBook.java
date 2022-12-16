@@ -1,4 +1,4 @@
-package com.waoap.addressbook;
+package com.waoap.addressbook.model;
 
 import com.waoap.addressbook.utils.PinYinComparator;
 

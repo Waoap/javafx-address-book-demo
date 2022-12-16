@@ -1,7 +1,7 @@
 package com.waoap.addressbook.utils;
 
 import com.waoap.addressbook.MainApplication;
-import com.waoap.addressbook.Person;
+import com.waoap.addressbook.model.Person;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;

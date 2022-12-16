@@ -1,5 +1,7 @@
 package com.waoap.addressbook;
 
+import com.waoap.addressbook.model.AddressBook;
+import com.waoap.addressbook.model.Person;
 import com.waoap.addressbook.utils.Dialog;
 import com.waoap.addressbook.utils.MTextFormatter;
 import javafx.application.Platform;
@@ -286,12 +288,12 @@ public class MainController {
                 }
                 alert.setTitle("关于");
                 alert.setHeaderText("「长歌吟松风，曲尽河星稀」");
-                alert.setContentText("版本：\t 1.0.1 -- TEST\n作者：\t Waoap\nGitHub： https://github.com/Waoap");
+                alert.setContentText("版本：\t 1.0.2 -- TEST\n作者：\t Waoap\nGitHub： https://github.com/Waoap");
                 alert.showAndWait();
             }
         });
 
-        log(LogLevel.INFO, "欢迎使用！");
+        log(LogLevel.INFO, "欢迎！双击此处打开关于界面。");
     }
 
     /**
