@@ -6,6 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
@@ -50,6 +51,7 @@ public class Dialog extends javafx.scene.control.Dialog<Person> {
         // 创建用于接受/显示联系人基本信息的输入框，以及对应的标签
         Label nameLabel = new Label("姓名：");
         TextField nameField = new TextField();
+        nameField.setPrefWidth(150);
         nameField.setTextFormatter(MTextFormatter.getNameFormatter());
 
         Label telephoneLabel = new Label("电话：");
@@ -92,7 +94,7 @@ public class Dialog extends javafx.scene.control.Dialog<Person> {
         try {
             ((Stage) dialog.getDialogPane().getScene().getWindow()).getIcons().add(new Image(Objects.requireNonNull(MainApplication.class.getResource("icon.png")).openStream()));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         dialog.getDialogPane().setContent(dialogRoot);
 
@@ -149,8 +151,12 @@ public class Dialog extends javafx.scene.control.Dialog<Person> {
      */
     public void setDisableAll(boolean value) {
         ((GridPane) this.getDialogPane().getContent()).getChildren().forEach(node -> {
-            if (node instanceof TextField || node instanceof Button)
+            if (node instanceof TextInputControl) {
+                ((TextField) node).setEditable(!value);
+            }
+            if (node instanceof Button) {
                 node.setDisable(value);
+            }
         });
     }
 

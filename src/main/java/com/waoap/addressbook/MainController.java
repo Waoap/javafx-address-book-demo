@@ -5,9 +5,13 @@ import com.waoap.addressbook.utils.MTextFormatter;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.*;
 
 public class MainController {
@@ -124,6 +128,7 @@ public class MainController {
                     if (searchButton.getText().equals("返回")) {
                         refreshContacts();
                         searchButton.setText("查找");
+                        log(LogLevel.INFO, "结束查找联系人。");
                     }
                     log(LogLevel.INFO, "联系人添加成功！");
                 } else {
@@ -137,6 +142,7 @@ public class MainController {
         // 查找联系人按钮事件
         searchButton.setOnAction(event -> {
             if (searchButton.getText().equals("查找")) {
+                log(LogLevel.INFO, "正在查找联系人……");
                 ArrayList<String> matchContacts = new ArrayList<>();
                 matchContacts.add("Sort By Name");
                 if (!keywordFieldName.getText().isBlank()) {
@@ -155,6 +161,7 @@ public class MainController {
             } else if (searchButton.getText().equals("返回")) {
                 refreshContacts();
                 searchButton.setText("查找");
+                log(LogLevel.INFO, "结束查找联系人。");
             }
         });
 
@@ -215,6 +222,7 @@ public class MainController {
                         if (searchButton.getText().equals("返回")) {
                             refreshContacts();
                             searchButton.setText("查找");
+                            log(LogLevel.INFO, "结束查找联系人。");
                         }
                         log(LogLevel.INFO, "联系人删除成功！");
                     }
@@ -242,6 +250,7 @@ public class MainController {
                                     if (searchButton.getText().equals("返回")) {
                                         refreshContacts();
                                         searchButton.setText("查找");
+                                        log(LogLevel.INFO, "结束查找联系人。");
                                     }
                                     log(LogLevel.INFO, "联系人修改成功！");
                                 }
@@ -265,6 +274,22 @@ public class MainController {
             int finalI = i;
             navigationList.getChildren().get(i).setOnMouseClicked(event -> contactsList.scrollTo(contactsList.getItems().indexOf(((Label) navigationList.getChildren().get(finalI)).getText())));
         }
+
+        // 关于
+        logField.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            if (event.getClickCount() == 2) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                try {
+                    ((Stage) alert.getDialogPane().getScene().getWindow()).getIcons().add(new Image(Objects.requireNonNull(MainApplication.class.getResource("icon.png")).openStream()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                alert.setTitle("关于");
+                alert.setHeaderText("「长歌吟松风，曲尽河星稀」");
+                alert.setContentText("版本：\t 1.0.1 -- TEST\n作者：\t Waoap\nGitHub： https://github.com/Waoap");
+                alert.showAndWait();
+            }
+        });
 
         log(LogLevel.INFO, "欢迎使用！");
     }

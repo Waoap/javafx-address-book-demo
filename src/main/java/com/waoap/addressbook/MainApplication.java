@@ -20,6 +20,8 @@ public class MainApplication extends Application {
         Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("main-view.fxml")));
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
+        primaryStage.setTitle("电话簿");
+        primaryStage.setResizable(false);
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("icon.png")).openStream()));
         primaryStage.show();
     }
